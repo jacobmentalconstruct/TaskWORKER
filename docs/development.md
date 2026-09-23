@@ -41,8 +41,8 @@ GOTOOLCHAIN=local CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags='-s 
 `-buildvcs=false` matters: inside a git checkout Go stamps the commit and a dirty flag
 into the executable, which changes its hash. With the flags above (and `GOAMD64=v1`, the
 default) a fresh `git clone` builds a byte-identical executable: the Windows amd64
-build from the 0.1.0 commit matches the released binary
-(`585bafe4f2bf62b34e0e0eed00f38c3c45e17b2ec5f83261bf9eadf6e017d541`). That
+build from the 0.1.1 commit matches the released binary
+(`377ec391741cb82bd3144f31d2cec831079f84f03ccd4c23e276c14dd623f0a5`). That
 comparison was made for Windows amd64 only.
 
 Target matrix: `windows/amd64`, `windows/arm64`, `darwin/amd64`, `darwin/arm64`,
