@@ -149,6 +149,16 @@
       "binds": {
         "commit": "9f0c68602921c8fe89ba0f47fe277e65c11f4ec8"
       }
+    },
+    {
+      "id": "host-check:linux/amd64",
+      "kind": "auto",
+      "by": "scripts/package.py on Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43 (x86_64)",
+      "at": "2026-09-23T12:55:47Z",
+      "note": "executed from the extracted archive: version, help, serve, embedded UI, packaged Python client, mcp startup, graceful stop",
+      "binds": {
+        "binary:linux/amd64": "3f204c362c575322ba6a6ba5e98f853bce41055a73e0bf45953e3833c680b27a"
+      }
     }
   ]
 }
