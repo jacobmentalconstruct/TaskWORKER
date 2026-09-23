@@ -1,0 +1,95 @@
+{
+  "limitations": [
+    {
+      "id": "ollama-version",
+      "title": "Ollama 0.18.3 only",
+      "status": "accepted",
+      "text": "Generation is supported only on Ollama 0.18.3, the audited version, and on installed text models that use a plain template (no vision, custom renderer or stored messages). Any other Ollama version is reported as `unsupported` rather than guessed at. TaskWorker never downloads or manages models.",
+      "closes_when": "Accepted for 0.1.0. It changes only when another Ollama version's generation path is audited and added to the adapter (see docs/ollama.md)."
+    },
+    {
+      "id": "no-authentication",
+      "title": "No authentication",
+      "status": "accepted",
+      "text": "The service accepts loopback connections only and has no authentication: any program running as any user on the same machine can control it. Do not expose it to a network. Browser requests are restricted to the exact local origin.",
+      "closes_when": "Accepted by design: the service is a local tool. Remote access and authentication are out of scope."
+    },
+    {
+      "id": "plaintext-storage",
+      "title": "Unencrypted storage",
+      "status": "accepted",
+      "text": "Jobs, prompts and outputs are stored unencrypted in the data directory.",
+      "closes_when": "Accepted for 0.1.0. Use an encrypted volume if that matters to you."
+    },
+    {
+      "id": "queue-limits",
+      "title": "One job at a time, bounded queue",
+      "status": "accepted",
+      "text": "One job runs at a time and the pending queue is bounded (a full queue returns `queue_full`). Retention is finite and there is no compaction.",
+      "closes_when": "Accepted by design for the first version."
+    },
+    {
+      "id": "power-loss",
+      "title": "Power-loss durability is untested",
+      "status": "accepted",
+      "text": "Records are synced to disk before they are acknowledged, and a job that was running when the service stopped or crashed is marked interrupted. True power-loss durability depends on your filesystem and device, and power-loss testing has not been done.",
+      "closes_when": "Needs hardware fault testing on each platform; not planned for 0.1.0."
+    },
+    {
+      "id": "estimates",
+      "title": "Estimates and cancellation timing",
+      "status": "accepted",
+      "text": "Token counts shown before a run are labelled estimates. Cancellation takes effect when Ollama stops the generation, so its exact timing is not guaranteed.",
+      "closes_when": "Accepted: the estimates are heuristics by design and cancellation timing belongs to the engine."
+    },
+    {
+      "id": "unsigned",
+      "title": "Unsigned executables",
+      "status": "accepted",
+      "text": "The executables are not code-signed or notarized, so Windows SmartScreen or macOS Gatekeeper may ask you to confirm before the first run. Check each download against `SHA256SUMS`.",
+      "closes_when": "Accepted for 0.1.0; signing needs paid certificates. Release binaries are reproducible from the tagged commit (docs/development.md), which lets you verify them yourself."
+    },
+    {
+      "id": "platforms-executed",
+      "title": "Windows arm64 and macOS on Intel have not been executed",
+      "status": "accepted",
+      "evidence": ["host-check:windows/amd64", "host-check:linux/amd64", "ci-green"],
+      "text": "The packaged release binary was executed (version, help, serve, the embedded UI, the packaged Python client, the MCP bridge and a graceful stop) on Windows amd64, Linux amd64, Linux arm64 and macOS arm64: on Windows 10 and on Ubuntu under WSL2 by the maintainer, and on GitHub Actions runners for all four. The Windows arm64 and macOS amd64 (Intel) executables are cross-compiled and header-inspected only.",
+      "closes_when": "Someone runs `python scripts/package.py host-check` on Windows arm64 or macOS Intel hardware and records the result. CI covers neither, and macOS on Intel has no free runner."
+    },
+    {
+      "id": "test-platforms",
+      "title": "Tests on Linux, macOS and Windows",
+      "status": "closed",
+      "evidence": ["ci-green"],
+      "text": "The Go test suite runs in CI on Linux, macOS and Windows, and the Python client suite runs on CPython 3.10 to 3.14 on Linux and on 3.13 on macOS and Windows. Both were green for the release commit.",
+      "closes_when": "CI runs both suites on Linux, macOS and Windows and is green for the release commit.",
+      "closes_with": ["ci-green"]
+    },
+    {
+      "id": "race-detector",
+      "title": "Race detector",
+      "status": "closed",
+      "evidence": ["ci-green"],
+      "text": "The Go race detector runs in CI on Linux, macOS and Windows over every package except the MCP bridge (its tests drive a separately built executable, so the detector cannot see inside it) and the test service. It reported no data race for the release commit.",
+      "closes_when": "CI runs `go test -race` on the packages that support it and is green for the release commit.",
+      "closes_with": ["ci-green"]
+    },
+    {
+      "id": "interactive-browser",
+      "title": "Interactive browser check",
+      "status": "closed",
+      "evidence": ["interactive-browser-check"],
+      "text": "A person ran the browser UI interactively against the release binary and Ollama 0.18.3: submitting and watching output stream in, cancelling a running job, reloading in the middle of a run, pausing and resuming the queue, and a job submitted from the command line reaching the open page. All of these worked.",
+      "closes_when": "Someone completes the interactive browser check (steps in release/manual-checks.json) and records it with `release_check.py attest interactive-browser-check`.",
+      "closes_with": ["interactive-browser-check"]
+    },
+    {
+      "id": "mcp-hosts",
+      "title": "MCP verified with SDK clients only",
+      "status": "accepted",
+      "text": "The MCP bridge is verified against the official Go and Python SDK clients. No specific agent host has been tried.",
+      "closes_when": "Accepted for 0.1.0; agent hosts differ and each would need its own check."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "required_for_release": [
+    "host-check:windows/amd64",
+    "interactive-browser-check",
+    "quickstart-on-real-ollama",
+    "ci-green"
+  ],
+  "manual": {
+    "interactive-browser-check": {
+      "title": "Interactive browser check",
+      "binds": ["ui_assets"],
+      "steps": [
+        "Start the service from the release archive: taskworker serve. Open http://127.0.0.1:7433 in a browser.",
+        "Pick an installed model whose text_generation capability is true, enter a role, a system prompt and a prompt, and submit. Watch the output stream in.",
+        "Cancel a running job. Confirm the state becomes cancelled and the partial output stays.",
+        "Reload the page in the middle of a running job. Confirm the job list and the running output come back.",
+        "Pause the queue, submit two jobs, and confirm they wait. Resume and confirm they run in order.",
+        "With the page open, submit a job from the command line (taskworker submit --command job.json). Confirm it appears in the page live."
+      ]
+    },
+    "quickstart-on-real-ollama": {
+      "title": "README quick start on real Ollama",
+      "binds": ["binary:windows/amd64"],
+      "steps": [
+        "With Ollama 0.18.3 running and a small text model installed, extract the release archive for your platform.",
+        "Follow the README Quick start exactly: taskworker serve, then save job.json and run taskworker submit --command job.json --wait --timeout 2m.",
+        "Confirm the job succeeds with real output, that submitting the same file again returns the same job, and that the UI shows it."
+      ]
+    },
+    "ci-green": {
+      "title": "CI is green for the release commit",
+      "binds": ["commit"],
+      "steps": [
+        "Push the release commit and wait for every job of .github/workflows/ci.yml to finish.",
+        "Confirm all jobs are green (the optional arm64 job may be marked as allowed to fail).",
+        "Record it while the release commit is checked out: attest ci-green with the run URL in the note."
+      ]
+    }
+  }
+}

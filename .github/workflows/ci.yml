@@ -1,0 +1,183 @@
+# Continuous integration: runs what a single Windows development machine cannot.
+#   go          vet, build, every Go test, and the race detector, on Linux, macOS and Windows
+#   browser-js  the embedded UI's JavaScript tests
+#   python      the Python client tests on CPython 3.10-3.14 (Linux) and 3.13 (macOS, Windows),
+#               plus interoperability with the official MCP Python SDK
+#   package     builds all six release archives from an explicit allowlist and inspects them
+#   host-check  EXECUTES the packaged binary on each runner: version, help, serve, UI, packaged
+#               Python client, MCP bridge, graceful stop
+# A green run for the release commit is what `release_check.py attest ci-green` records.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GOTOOLCHAIN: local
+  CGO_ENABLED: "0"
+
+jobs:
+  go:
+    name: Go (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: gofmt
+        run: |
+          unformatted="$(gofmt -l cmd internal)"
+          if [ -n "$unformatted" ]; then echo "not gofmt-formatted:"; echo "$unformatted"; exit 1; fi
+      - name: vet
+        run: go vet ./...
+      - name: build
+        run: go build ./...
+      - name: test
+        run: go test ./... -count=1 -timeout 600s
+      - name: race detector
+        # The MCP bridge's tests drive a separately built executable, so the detector cannot see inside it.
+        env:
+          CGO_ENABLED: "1"
+        run: go test -race -count=1 -timeout 900s $(go list ./... | grep -v -e /mcpbridge -e /testservice)
+
+  browser-js:
+    name: Browser JS
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - run: node --experimental-default-type=module internal/adapters/webui/state.test.mjs
+      - run: node --experimental-default-type=module internal/adapters/webui/app.test.mjs
+
+  python:
+    name: Python ${{ matrix.python }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        include:
+          - os: macos-latest
+            python: "3.13"
+          - os: windows-latest
+            python: "3.13"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: build the executable and the test-only scripted service
+        run: |
+          ext=""; if [ "$RUNNER_OS" = "Windows" ]; then ext=".exe"; fi
+          mkdir -p "$RUNNER_TEMP/bin"
+          go build -trimpath -buildvcs=false -o "$RUNNER_TEMP/bin/taskworker$ext" ./cmd/taskworker
+          go build -trimpath -o "$RUNNER_TEMP/bin/fakeworker$ext" ./internal/testservice/cmd/fakeworker
+          echo "TASKWORKER_EXE=$RUNNER_TEMP/bin/taskworker$ext" >> "$GITHUB_ENV"
+          echo "TASKWORKER_FAKEWORKER=$RUNNER_TEMP/bin/fakeworker$ext" >> "$GITHUB_ENV"
+      - name: Python tests
+        working-directory: clients/python
+        run: python -W error::ResourceWarning -m unittest discover -s tests -p "test_*.py"
+      - name: interoperability with the official MCP Python SDK
+        if: matrix.os == 'ubuntu-24.04' && matrix.python == '3.13'
+        run: |
+          python -m pip install "mcp==2.2.0"
+          python clients/python/tests/interop_mcp_official.py modern
+          python clients/python/tests/interop_mcp_official.py legacy
+
+  package:
+    name: Package and inspect
+    needs: [go, browser-js, python]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: build all six targets
+        run: |
+          mkdir -p build
+          for os in windows darwin linux; do
+            for arch in amd64 arm64; do
+              ext=""; if [ "$os" = windows ]; then ext=".exe"; fi
+              GOOS=$os GOARCH=$arch go build ./...
+              GOOS=$os GOARCH=$arch go build -trimpath -buildvcs=false -ldflags='-s -w' -o "build/taskworker-$os-$arch$ext" ./cmd/taskworker
+            done
+          done
+      - name: generated limitations are in sync
+        run: python scripts/limitations.py --check
+      - name: assemble the archives from the allowlist and inspect them
+        run: |
+          export GOROOT="$(go env GOROOT)"
+          python scripts/package.py build
+      - name: tests of the release gate and the evidence logic
+        run: |
+          python scripts/test_package.py
+          python scripts/test_release.py
+      - uses: actions/upload-artifact@v6
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  host-check:
+    name: Run the packaged binary (${{ matrix.os }})
+    needs: package
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    continue-on-error: ${{ matrix.optional == true }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+          - os: macos-latest
+          - os: windows-latest
+          - os: ubuntu-24.04-arm
+            optional: true
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v7
+        with:
+          name: dist
+          path: dist
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: python scripts/package.py host-check --no-record

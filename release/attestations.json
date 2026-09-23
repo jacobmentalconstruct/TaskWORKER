@@ -1,0 +1,124 @@
+{
+  "attestations": [
+    {
+      "id": "host-check:windows/amd64",
+      "kind": "auto",
+      "by": "scripts/package.py on Windows-10-10.0.19045-SP0 (AMD64)",
+      "at": "2026-09-21T09:52:09Z",
+      "note": "executed from the extracted archive: version, help, serve, embedded UI, packaged Python client, mcp startup, graceful stop",
+      "binds": {
+        "binary:windows/amd64": "585bafe4f2bf62b34e0e0eed00f38c3c45e17b2ec5f83261bf9eadf6e017d541"
+      }
+    },
+    {
+      "id": "host-check:linux/amd64",
+      "kind": "auto",
+      "by": "scripts/package.py on Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43 (x86_64)",
+      "at": "2026-09-21T09:56:09Z",
+      "note": "executed from the extracted archive: version, help, serve, embedded UI, packaged Python client, mcp startup, graceful stop",
+      "binds": {
+        "binary:linux/amd64": "9441d486f278b0a1b20966c767138c18ae25f7dd5601c398cae5383a333c2d05"
+      }
+    },
+    {
+      "id": "interactive-browser-check",
+      "kind": "manual",
+      "by": "jacobmentalconstruct",
+      "at": "2026-09-21T14:32:13Z",
+      "note": "Ran the 0.1.0 windows/amd64 release binary (sha256 585bafe4f2bf62b34e0e0eed00f38c3c45e17b2ec5f83261bf9eadf6e017d541, identical to the release archive's executable) against Ollama 0.18.3 and checked the UI in a desktop browser: submit and stream, cancel a running job (partial output kept), reload mid-run (running job restored), pause and resume with jobs run in order, and a CLI job reaching the open page live. All passed. Known issues noted: live jobs are appended at the bottom of the history list, and a user cancel is labelled 'Job fault: cancelled'.",
+      "binds": {
+        "ui_assets": "667ec6eb99c4ef7030a7973448969c706b20ae44b0156ae89e724e68c47c0b39"
+      }
+    },
+    {
+      "id": "quickstart-on-real-ollama",
+      "kind": "manual",
+      "by": "jacobmentalconstruct",
+      "at": "2026-09-21T15:43:40Z",
+      "note": "Extracted the 0.1.0 windows/amd64 release archive (executable sha256 585bafe4f2bf62b34e0e0eed00f38c3c45e17b2ec5f83261bf9eadf6e017d541) and followed the README quick start against Ollama 0.18.3: taskworker serve, README job.json (qwen2.5:0.5b), taskworker submit --wait succeeded with real output; submitting the same file again returned the same job (991fcfcc...); the job showed in the UI. Data from earlier jobs was intact after an abrupt stop of the previous service.",
+      "binds": {
+        "binary:windows/amd64": "585bafe4f2bf62b34e0e0eed00f38c3c45e17b2ec5f83261bf9eadf6e017d541"
+      }
+    },
+    {
+      "id": "ci-green",
+      "kind": "manual",
+      "by": "jacobmentalconstruct",
+      "at": "2026-09-21T15:44:30Z",
+      "note": "CI run 35619170693 (GitHub Actions) on commit e72a7d00a0: all 16 jobs succeeded (Go incl. race detector on Linux, macOS and Windows; Python 3.10-3.14; Browser JS; Package and inspect; packaged binary executed on windows/amd64, linux/amd64, linux/arm64 and darwin/arm64). Status read with the gh CLI by Claude Code at the owner's direction.",
+      "binds": {
+        "commit": "e72a7d00a081e962f5104ce8c513687a2f1cdf69"
+      }
+    },
+    {
+      "id": "host-check:windows/amd64",
+      "kind": "auto",
+      "by": "scripts/package.py on Windows-10-10.0.19045-SP0 (AMD64)",
+      "at": "2026-09-22T15:13:49Z",
+      "note": "executed from the extracted archive: version, help, serve, embedded UI, packaged Python client, mcp startup, graceful stop",
+      "binds": {
+        "binary:windows/amd64": "0603874553ccb7fd926757f302ef92469e6084d4554a779decf27144db8d70a5"
+      }
+    },
+    {
+      "id": "host-check:linux/amd64",
+      "kind": "auto",
+      "by": "scripts/package.py on Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43 (x86_64)",
+      "at": "2026-09-22T15:15:56Z",
+      "note": "executed from the extracted archive: version, help, serve, embedded UI, packaged Python client, mcp startup, graceful stop",
+      "binds": {
+        "binary:linux/amd64": "292181ae16bc3f86d537ee1edb83edbffaa7f84e293c8e7d846f39a30f440777"
+      }
+    },
+    {
+      "id": "interactive-browser-check",
+      "kind": "manual",
+      "by": "jacobmentalconstruct",
+      "at": "2026-09-22T15:43:35Z",
+      "note": "Submitted qwen2.5:0.5b with role/system/prompt and watched it stream; cancelled a running job (state cancelled, partial output kept); reloaded mid-run and the job list and running output came back; paused the queue, submitted two jobs, confirmed they waited, resumed and they ran in order; a CLI-submitted job appeared live in the open browser tab.",
+      "binds": {
+        "ui_assets": "f6ca8d09a3374194696dc92157e69634446bfa6ed15ade72fa93c5f09f6554a0"
+      }
+    },
+    {
+      "id": "quickstart-on-real-ollama",
+      "kind": "manual",
+      "by": "jacobmentalconstruct",
+      "at": "2026-09-22T15:43:39Z",
+      "note": "With Ollama 0.18.3 running and qwen2.5:0.5b installed, followed the README quick start exactly against the extracted windows-amd64 archive: taskworker serve, then taskworker submit --command job.json --wait --timeout 2m succeeded with real output; resubmitting the identical command returned the same job (idempotency confirmed); the UI showed it.",
+      "binds": {
+        "binary:windows/amd64": "0603874553ccb7fd926757f302ef92469e6084d4554a779decf27144db8d70a5"
+      }
+    },
+    {
+      "id": "ci-green",
+      "kind": "manual",
+      "by": "jacobmentalconstruct",
+      "at": "2026-09-22T23:42:33Z",
+      "note": "CI run 35750254198 (GitHub Actions), commit 80282d2, all jobs success",
+      "binds": {
+        "commit": "80282d25d67d9946bd3c257c40460cc67382eb0d"
+      }
+    },
+    {
+      "id": "ci-green",
+      "kind": "manual",
+      "by": "jacobmentalconstruct",
+      "at": "2026-09-23T00:41:02Z",
+      "note": "CI run 35800380332 (GitHub Actions), commit 6f689d3, all jobs success",
+      "binds": {
+        "commit": "6f689d3b5b17a0b0b2d1e6b58a4597b1ea82aea4"
+      }
+    },
+    {
+      "id": "ci-green",
+      "kind": "manual",
+      "by": "jacobmentalconstruct",
+      "at": "2026-09-23T10:12:26Z",
+      "note": "CI run 35846187612 (GitHub Actions), commit 3f49e02, all jobs success",
+      "binds": {
+        "commit": "3f49e02b54950e4c9712ac4350edc6fb51c0b4f3"
+      }
+    }
+  ]
+}

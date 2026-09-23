@@ -1,0 +1,3 @@
+# Files are stored exactly as they were built and tested (some embedded browser assets and docs use CRLF).
+# No end-of-line conversion, so a fresh checkout on any platform reproduces the same bytes and the same executable.
+* -text

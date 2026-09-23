@@ -1,0 +1,12 @@
+/.tools/
+/.cache/
+/build/
+/dist/
+/data/
+__pycache__/
+*.pyc
+*.egg-info/
+# Optional maintainer-only strings the packaging check must never find in a release (see scripts/package.py).
+/.release-private-terms
+# Scratch folder for reference material the owner drops in (screenshots, scripts, etc.) — never tracked.
+/.parts/
