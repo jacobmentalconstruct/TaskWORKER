@@ -17,7 +17,7 @@ import (
 	"taskworker.local/taskworker/internal/core"
 )
 
-const Version = "0.1.0"
+const Version = "0.1.1"
 const usage = `TaskWorker — shared local inference worker
 Usage: taskworker COMMAND [flags] [arguments]
   serve [--server URL] [--data-dir DIR] [--ollama URL]

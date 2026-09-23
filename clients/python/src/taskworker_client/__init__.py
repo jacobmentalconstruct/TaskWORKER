@@ -33,7 +33,7 @@ from .models import (
     submit_command,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "Client", "EventStream", "Frame", "Mirror", "Command", "Cursor", "Job", "Snapshot",

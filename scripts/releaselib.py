@@ -16,6 +16,7 @@ import datetime
 import hashlib
 import json
 import pathlib
+import re
 import subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -56,6 +57,21 @@ def git(*args, check=True):
 
 def head_commit():
     return git("rev-parse", "HEAD").strip()
+
+
+def github_raw_url(path):
+    """A raw.githubusercontent.com URL for `path` at HEAD, pinned to the exact commit so it
+    never goes stale. None if origin is not a github.com remote (for example a dev clone with
+    no remote, or one hosted elsewhere) -- callers must handle that by omitting the section."""
+    try:
+        origin = git("remote", "get-url", "origin").strip()
+    except RuntimeError:
+        return None
+    m = re.search(r"github\.com[:/]([^/]+)/(.+?)(?:\.git)?$", origin)
+    if not m:
+        return None
+    owner, repo = m.group(1), m.group(2)
+    return f"https://raw.githubusercontent.com/{owner}/{repo}/{head_commit()}/{path}"
 
 
 def changed_since(commit):

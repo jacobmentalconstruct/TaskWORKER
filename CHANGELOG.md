@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- Release notes now include a screenshot of the browser UI.
+- Updated the README screenshot to the current UI.
+- No functional changes to the service, CLI, clients or MCP bridge.
+
 ## 0.1.0
 
 First release.

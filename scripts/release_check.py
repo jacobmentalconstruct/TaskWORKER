@@ -261,8 +261,11 @@ def render_notes(version, m, atts, items):
     ready = all(valid(r) for r in required)
     out = [f"# TaskWorker {version}" + ("" if ready else " (DRAFT: required evidence is missing)"), "",
            "A small local inference worker that people and agents share: browser UI, CLI, Python client and an MCP bridge",
-           "all control the same jobs. Inference is done by an installed Ollama 0.18.3.", "",
-           "## Downloads", "", "| Platform | File | SHA-256 | Executed |", "| --- | --- | --- | --- |"]
+           "all control the same jobs. Inference is done by an installed Ollama 0.18.3.", ""]
+    screenshot = lib.github_raw_url("assets/screenshots/app-sample-screen.png")
+    if screenshot:
+        out += ["## Screenshot", "", f"![The TaskWorker browser UI]({screenshot})", ""]
+    out += ["## Downloads", "", "| Platform | File | SHA-256 | Executed |", "| --- | --- | --- | --- |"]
     for key, t in m["targets"].items():
         att = valid(f"host-check:{key}")
         ran = f"yes ({att['by'].split(' on ', 1)[-1]})" if att else "no (cross-compiled, header inspected)"
