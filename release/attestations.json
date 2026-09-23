@@ -159,6 +159,16 @@
       "binds": {
         "binary:linux/amd64": "3f204c362c575322ba6a6ba5e98f853bce41055a73e0bf45953e3833c680b27a"
       }
+    },
+    {
+      "id": "quickstart-on-real-ollama",
+      "kind": "manual",
+      "by": "jacobmentalconstruct",
+      "at": "2026-09-23T13:02:08Z",
+      "note": "With Ollama running and qwen2.5:0.5b installed, followed the README quick start against the extracted windows-amd64 0.1.1 archive: taskworker serve, then taskworker submit --command job.json --wait --timeout 2m succeeded with real output.",
+      "binds": {
+        "binary:windows/amd64": "377ec391741cb82bd3144f31d2cec831079f84f03ccd4c23e276c14dd623f0a5"
+      }
     }
   ]
 }
